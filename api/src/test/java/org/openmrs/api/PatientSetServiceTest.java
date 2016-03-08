@@ -154,6 +154,7 @@ public class PatientSetServiceTest extends BaseContextSensitiveTest {
 		Assert.assertTrue(cohort.contains(7));
 	}
 	
+	
 	/**
 	 * @see PatientSetService#getPatientsByProgramAndState(org.openmrs.Program,List,Date,Date)
 	 */
@@ -165,6 +166,40 @@ public class PatientSetServiceTest extends BaseContextSensitiveTest {
 		Assert.assertEquals(1, cohort.size());
 		Assert.assertTrue(cohort.contains(2));
 	}
+	
+	//amcarth2
+	@Test
+	@Verifies(value = "should get all patients in program given null dates", method = "getPatientsInProgram(Program, Date, Date)")
+	public void getPatientsInProgram_shouldGetAllPatientsInProgramGivenNullDates() throws Exception {
+	    Cohort cohort = service.getPatientsInProgram(Context.getProgramWorkflowService().getProgram(1), null, null);
+	    
+	    Assert.assertEquals(1, cohort.size());
+	    Assert.assertTrue(cohort.contains(2));
+	
+	}
+	
+	
+	//this test is failing. Fault in the code or am I using Date wrong?
+	@Test
+	@Verifies(value = "Should not return patient who enrolled before fromDate", method = "getPatientsInProgram(Program, Date, Date)")
+	public void getPatientsInProgram_shouldNotGetPatientsEnrolledBeforeFromDate() throws Exception {
+	    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	    Date fromDate = sdf.parse("01/01/2017");
+	    Cohort cohort = service.getPatientsInProgram(Context.getProgramWorkflowService().getProgram(1), fromDate, null);
+	    
+	    Assert.assertEquals(0, cohort.size());
+	}
+	
+	@Test
+	@Verifies(value = "Should not return patient who enrolled after toDate", method = "getPatientsInProgram(Program, Date, Date)")
+	public void getPatientsInProgram_shouldNotGetPatientsEnrolledAfterToDate() throws Exception {
+	    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	    Date toDate = sdf.parse("01/01/1990");
+	    Cohort cohort = service.getPatientsInProgram(Context.getProgramWorkflowService().getProgram(1), null, toDate);
+	    
+	    Assert.assertEquals(0, cohort.size());
+	}
+	//------------
 	
 	/**
 	 * @see PatientSetService#getPatientsHavingDrugOrder(java.util.Collection, java.util.Collection, GroupMethod, Date, Date)
